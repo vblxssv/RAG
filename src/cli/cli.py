@@ -1,5 +1,6 @@
 from pathlib import Path
 import fire
+from src.indexing import Indexer
 
 
 class CLI:
@@ -12,7 +13,8 @@ class CLI:
 
     def index(self, max_chunk_size: int = 2000) -> None:
         """Ingest data/raw/ and build the index under data/processed/."""
-        pass
+        indexer = Indexer("data/raw", max_chunk_size)
+        indexer.run()
 
     def search(self, query: str, k: int = 5) -> None:
         """Return the top-k sources for a single query."""
