@@ -1,4 +1,4 @@
-from .chunker import Chunker
-from .strategies import Chunk
+from src.indexing.chunking.chunker import Chunker
+from src.indexing.chunking.models import Chunk
 
 __all__ = ["Chunker", "Chunk"]

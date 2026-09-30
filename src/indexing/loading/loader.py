@@ -1,33 +1,14 @@
-from enum import Enum
-from dataclasses import dataclass
-from pathlib import Path
-import os
 from collections.abc import Iterator
+import os
+from pathlib import Path
 
-
-class FileType(str, Enum):
-    PYTHON = "python"  # .py
-    TEXT = "text"     # .txt .rst .md
-
-
-@dataclass(frozen=True)
-class Document:
-    path: str
-    content: str
-    type: FileType
-
-    def __str__(self) -> str:
-        """Returns a human-readable representation of the document."""
-        res = f"Path: {self.path}\nType: {self.type.value}\nContent:\n"
-        if len(self.content) > 200:
-            res += self.content[:200] + "..."
-        else:
-            res += self.content
-        return res
+from src.indexing.loading.models import Document, FileType
 
 
 class DocumentLoader:
-    def __init__(self, root_dir: str | Path):
+    """Recursively loads files from a directory as Document instances."""
+
+    def __init__(self, root_dir: str | Path) -> None:
         self._root_dir = Path(root_dir)
 
     def get_files(self) -> list[Path]:

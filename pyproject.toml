@@ -9,3 +9,14 @@ dependencies = [
     "flake8>=7.3.0",
     "mypy>=2.3.1",
 ]
+
+[tool.mypy]
+python_version = "3.13"
+
+[[tool.mypy.overrides]]
+module = "fire.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "fire"
+ignore_missing_imports = true
