@@ -1,7 +1,7 @@
 from typing import List
 
 from src.indexing.chunking.base import ChunkStrategy
-from src.indexing.chunking.models import Chunk
+from src.indexing.chunking.models import MinimalSource
 from src.indexing.loading import Document
 
 
@@ -29,8 +29,8 @@ class TextChunkStrategy(ChunkStrategy):
             return space_pos
         return limit
 
-    def chunk(self, document: Document) -> List[Chunk]:
-        chunks: List[Chunk] = []
+    def chunk(self, document: Document) -> List[MinimalSource]:
+        sources: List[MinimalSource] = []
         text: str = document.content
         size: int = len(text)
 
@@ -43,13 +43,12 @@ class TextChunkStrategy(ChunkStrategy):
             sentence_start = cursor
             limit = min(sentence_start + self.max_chunk_size, size)
             chunk_end = self._find_end(text, sentence_start, limit)
-            chunks.append(
-                Chunk(
-                    document.path,
-                    text[sentence_start:chunk_end],
-                    sentence_start,
-                    chunk_end,
+            sources.append(
+                MinimalSource(
+                    file_path=document.path,
+                    first_character_index=sentence_start,
+                    last_character_index=chunk_end,
                 )
             )
             cursor = chunk_end
-        return chunks
+        return sources

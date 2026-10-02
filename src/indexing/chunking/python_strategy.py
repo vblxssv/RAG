@@ -2,7 +2,7 @@ import ast
 from typing import List
 
 from src.indexing.chunking.base import ChunkStrategy
-from src.indexing.chunking.models import Chunk, Zone
+from src.indexing.chunking.models import MinimalSource, Zone
 from src.indexing.chunking.text_strategy import TextChunkStrategy
 from src.indexing.loading import Document
 
@@ -96,57 +96,78 @@ class PythonChunkStrategy(ChunkStrategy):
 
     def _slice_large_zone(
         self, document: Document, zone: Zone
-    ) -> List[Chunk]:
-        """Slices an oversized zone into smaller chunks using text strategy."""
+    ) -> List[MinimalSource]:
+        """Slices an oversized zone using text strategy."""
         sub_text = document.content[zone.start_char:zone.end_char]
         sub_doc = Document(document.path, sub_text, document.type)
         return [
-            Chunk(
-                document.path,
-                c.content,
-                zone.start_char + c.first_character_index,
-                zone.start_char + c.last_character_index,
+            MinimalSource(
+                file_path=document.path,
+                first_character_index=(
+                    zone.start_char + s.first_character_index
+                ),
+                last_character_index=(
+                    zone.start_char + s.last_character_index
+                ),
             )
-            for c in TextChunkStrategy(self.max_chunk_size).chunk(sub_doc)
+            for s in TextChunkStrategy(self.max_chunk_size).chunk(sub_doc)
         ]
 
-    def chunk(self, document: Document) -> List[Chunk]:
+    def chunk(self, document: Document) -> List[MinimalSource]:
         text = document.content
         if not text.strip():
             return []
         if len(text) <= self.max_chunk_size:
-            return [Chunk(document.path, text, 0, len(text))]
+            return [
+                MinimalSource(
+                    file_path=document.path,
+                    first_character_index=0,
+                    last_character_index=len(text),
+                )
+            ]
 
         try:
             zones = self._get_zones(document)
         except (SyntaxError, ValueError):
             return TextChunkStrategy(self.max_chunk_size).chunk(document)
 
-        chunks: List[Chunk] = []
+        sources: List[MinimalSource] = []
         start: int | None = None
         end: int | None = None
 
         for z in zones:
             if (z.end_char - z.start_char) > self.max_chunk_size:
                 if start is not None and end is not None:
-                    chunks.append(
-                        Chunk(document.path, text[start:end], start, end)
+                    sources.append(
+                        MinimalSource(
+                            file_path=document.path,
+                            first_character_index=start,
+                            last_character_index=end,
+                        )
                     )
                     start, end = None, None
-                chunks.extend(self._slice_large_zone(document, z))
+                sources.extend(self._slice_large_zone(document, z))
             elif start is None:
                 start, end = z.start_char, z.end_char
             elif (z.end_char - start) <= self.max_chunk_size:
                 end = z.end_char
             elif start is not None and end is not None:
-                chunks.append(
-                    Chunk(document.path, text[start:end], start, end)
+                sources.append(
+                    MinimalSource(
+                        file_path=document.path,
+                        first_character_index=start,
+                        last_character_index=end,
+                    )
                 )
                 start, end = z.start_char, z.end_char
 
         if start is not None and end is not None:
-            chunks.append(
-                Chunk(document.path, text[start:end], start, end)
+            sources.append(
+                MinimalSource(
+                    file_path=document.path,
+                    first_character_index=start,
+                    last_character_index=end,
+                )
             )
 
-        return chunks
+        return sources
