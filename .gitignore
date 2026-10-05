@@ -3,6 +3,9 @@ src/**/__pycache__
 
 .venv/
 data/raw/vllm-0.10.1/
+data/processed/
 
 .mypy_cache/
 sim.log
+
+.DS_Store
