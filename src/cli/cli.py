@@ -13,8 +13,7 @@ class CLI:
 
     def index(self, max_chunk_size: int = 2000) -> None:
         """Ingest data/raw/ and build the index under data/processed/."""
-        indexer = Indexer("data/raw", max_chunk_size)
-        indexer.run()
+        Indexer("data/raw", max_chunk_size).run()
 
     def search(self, query: str, k: int = 5) -> None:
         """Return the top-k sources for a single query."""

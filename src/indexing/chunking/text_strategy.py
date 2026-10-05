@@ -30,9 +30,11 @@ class TextChunkStrategy(ChunkStrategy):
         return limit
 
     def chunk(self, document: Document) -> List[MinimalSource]:
+        if document.is_empty:
+            return []
         sources: List[MinimalSource] = []
         text: str = document.content
-        size: int = len(text)
+        size: int = len(document)
 
         cursor = 0
         while cursor < size:

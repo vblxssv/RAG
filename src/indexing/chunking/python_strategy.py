@@ -73,10 +73,7 @@ class PythonChunkStrategy(ChunkStrategy):
 
             if isinstance(node, ast.ClassDef):
                 class_zone = Zone(start_char, end_char)
-                if (
-                    class_zone.end_char - class_zone.start_char
-                    > self.max_chunk_size
-                ):
+                if class_zone.exceeds(self.max_chunk_size):
                     class_zones: List[Zone] = self._split_class_zone(
                         node, class_zone, cursor_line, document
                     )
@@ -87,7 +84,7 @@ class PythonChunkStrategy(ChunkStrategy):
                 zones.append(Zone(start_char, end_char))
             cursor_line = end_line + 1
 
-        total_chars = len(document.content)
+        total_chars = len(document)
         last_char = zones[-1].end_char if zones else 0
         if last_char < total_chars:
             zones.append(Zone(last_char, total_chars))
@@ -98,8 +95,7 @@ class PythonChunkStrategy(ChunkStrategy):
         self, document: Document, zone: Zone
     ) -> List[MinimalSource]:
         """Slices an oversized zone using text strategy."""
-        sub_text = document.content[zone.start_char:zone.end_char]
-        sub_doc = Document(document.path, sub_text, document.type)
+        sub_doc = document.sub_document(zone.start_char, zone.end_char)
         return [
             MinimalSource(
                 file_path=document.path,
@@ -114,15 +110,14 @@ class PythonChunkStrategy(ChunkStrategy):
         ]
 
     def chunk(self, document: Document) -> List[MinimalSource]:
-        text = document.content
-        if not text.strip():
+        if document.is_empty:
             return []
-        if len(text) <= self.max_chunk_size:
+        if len(document) <= self.max_chunk_size:
             return [
                 MinimalSource(
                     file_path=document.path,
                     first_character_index=0,
-                    last_character_index=len(text),
+                    last_character_index=len(document),
                 )
             ]
 
@@ -136,7 +131,7 @@ class PythonChunkStrategy(ChunkStrategy):
         end: int | None = None
 
         for z in zones:
-            if (z.end_char - z.start_char) > self.max_chunk_size:
+            if z.exceeds(self.max_chunk_size):
                 if start is not None and end is not None:
                     sources.append(
                         MinimalSource(

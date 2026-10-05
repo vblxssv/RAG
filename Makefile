@@ -15,6 +15,7 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	rm -rf $(VENV)
 	rm -rf .mypy_cache
-	rm sim.log
+	rm -f sim.log
+	rm -rf data/processed
 
 .PHONY: install run debug clean lint lint-strict
