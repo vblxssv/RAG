@@ -57,6 +57,30 @@ class BM25Indexer:
 
         return cls(dict(inverted_index), idf, chunk_lens, av_len, k1, b)
 
+    def search(self, query_tokens: List[str], top_k: int = 5) -> List[int]:
+        """take tokenized query and get top_k best chunks"""
+        if not query_tokens or top_k <= 0 or not self._av_chunk_len:
+            return []
+        scores: defaultdict[int, float] = defaultdict(float)
+        for token in query_tokens:
+            if token not in self._inverted_index:
+                continue
+            idf = self._word_value[token]
+            documents = self._inverted_index[token]
+            for doc_id, tf in documents:
+                doc_len = self._chunk_lens[doc_id]
+                len_norm = (1.0 - self._b + self._b *
+                            (doc_len / self._av_chunk_len))
+                tf_part = (tf * (self._k1 + 1.0)) / (tf + self._k1 * len_norm)
+                doc_score = idf * tf_part
+                scores[doc_id] += doc_score
+        sorted_doc_ids = sorted(
+            scores.keys(),
+            key=lambda doc_id: scores[doc_id],
+            reverse=True
+        )
+        return sorted_doc_ids[:top_k]
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "inverted_index": self._inverted_index,

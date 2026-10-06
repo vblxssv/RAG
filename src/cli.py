@@ -1,6 +1,7 @@
 from pathlib import Path
 import fire
 from src.indexing import Indexer
+from src.retrieving import Retriever
 
 
 class CLI:
@@ -17,7 +18,10 @@ class CLI:
 
     def search(self, query: str, k: int = 5) -> None:
         """Return the top-k sources for a single query."""
-        pass
+        retriever = Retriever()
+        results = retriever.search(query, k)
+        for res in results:
+            print(res)
 
     def search_dataset(
         self,
