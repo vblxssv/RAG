@@ -1,7 +1,8 @@
 from src.storage import IndexStorage
 from src.tokenizer import CodeTokenizer
-from src.models import MinimalSource
+from src.models import MinimalSource, StudentSearchResults
 from typing import List
+from pathlib import Path
 
 
 class Retriever:
@@ -17,3 +18,9 @@ class Retriever:
         docs = self._index.search(tokenized_query, k)
 
         return [self._sources[id] for id in docs]
+
+    def search_dataset(self, dataset_path: str | Path,
+                       save_directory: str | Path = "data/results",
+                       k: int = 5
+                       ) -> StudentSearchResults:
+        pass

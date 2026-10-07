@@ -8,6 +8,8 @@ class MinimalSource(BaseModel):
     first_character_index: int
     last_character_index: int
 
+# ================================================
+
 
 class UnansweredQuestion(BaseModel):
     question_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -22,6 +24,8 @@ class AnsweredQuestion(UnansweredQuestion):
 class RagDataset(BaseModel):
     rag_questions: List[Union[AnsweredQuestion, UnansweredQuestion]]
 
+# ================================================
+
 
 class MinimalSearchResults(BaseModel):
     question_id: str
@@ -29,15 +33,19 @@ class MinimalSearchResults(BaseModel):
     retrieved_sources: List[MinimalSource]
 
 
-class MinimalAnswer(MinimalSearchResults):
-    answer: str
-
-
 class StudentSearchResults(BaseModel):
     search_results: List[MinimalSearchResults]
     k: int
+
+# ================================================
+
+
+class MinimalAnswer(MinimalSearchResults):
+    answer: str
 
 
 class StudentSearchResultsAndAnswer(BaseModel):
     search_results: List[MinimalAnswer]
     k: int
+
+# ================================================
