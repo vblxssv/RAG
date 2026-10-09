@@ -17,5 +17,7 @@ clean:
 	rm -rf .mypy_cache
 	rm -f sim.log
 	rm -rf data/processed
+	rm -rf data/results
+	rm -rf data/output
 
 .PHONY: install run debug clean lint lint-strict

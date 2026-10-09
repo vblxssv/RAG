@@ -25,8 +25,14 @@ class RetrievingStorage(BaseStorage):
         result_path.write_text(json_text, encoding="utf-8")
         return result_path
 
-    def load_search_results(self) -> StudentSearchResults:
-        res_path = self._results_dir / self._input_path.name
+    def load_search_results(
+        self, custom_path: str | Path | None = None
+    ) -> StudentSearchResults:
+        res_path = (
+            Path(custom_path)
+            if custom_path
+            else self._results_dir / self._input_path.name
+        )
         if not res_path.exists():
             raise FileNotFoundError(f"File: {res_path} does not exist")
         raw_text = res_path.read_text(encoding="utf-8")
