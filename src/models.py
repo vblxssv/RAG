@@ -18,7 +18,7 @@ class MinimalSource(BaseModel):
     def interval_len(self) -> int:
         return self.last_character_index - self.first_character_index
 
-    def _get_intersection(self, other: MinimalSource) -> int:
+    def _get_intersection(self, other: "MinimalSource") -> int:
         if self.file_path != other.file_path:
             return 0
         start_intersec = max(self.first_character_index,
@@ -27,7 +27,7 @@ class MinimalSource(BaseModel):
                            other.last_character_index)
         return max(0, end_intersec - start_intersec)
 
-    def get_iou(self, other: MinimalSource) -> float:
+    def get_iou(self, other: "MinimalSource") -> float:
         if self.file_path != other.file_path:
             return 0.0
         intersection = self._get_intersection(other)

@@ -3,6 +3,7 @@ import fire
 from src.indexing import Indexer
 from src.retrieving import Retriever
 from src.recall import Recall
+from src.generating import AnswerGenerator
 
 
 class CLI:
@@ -44,7 +45,7 @@ class CLI:
 
     def answer(self, query: str, k: int = 5) -> None:
         """Answer a single query using the retrieved context."""
-        pass
+        print(AnswerGenerator().answer(query, k))
 
     def answer_dataset(
         self,
@@ -53,7 +54,14 @@ class CLI:
     ) -> None:
         """Generate answers for a dataset,
         producing a StudentSearchResultsAndAnswer JSON file."""
-        pass
+        results_path = Path(student_search_results_path)
+        save_dir = Path(save_directory)
+        if save_dir == Path("data/output/search_results_and_answer"):
+            save_dir = save_dir / results_path.parent.name
+
+        gen = AnswerGenerator()
+        p = gen.answer_dataset(results_path, save_dir)
+        print(f"Saved student_search_results_and_answer to {p.as_posix()}")
 
     def evaluate(
         self,
