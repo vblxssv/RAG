@@ -1,15 +1,19 @@
+"""Code and natural language tokenizer for lexical indexing and search."""
+
 import re
 
 
 class CodeTokenizer:
-    """Tokenize code identifiers and text tokens."""
+    """Tokenizes code identifiers and natural language text."""
 
     def __init__(self, min_token_len: int = 2) -> None:
+        """Initialize regex splitters and minimum token length threshold."""
         self._min_token_len = min_token_len
         self._camel_regex = re.compile(r"([a-z])([A-Z])")
         self._word_regex = re.compile(r"[a-zA-Z0-9_]+")
 
     def tokenize(self, text: str) -> list[str]:
+        """Split text into lowercase alphanumeric tokens."""
         if not text:
             return []
 

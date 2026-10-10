@@ -7,6 +7,7 @@ class BaseStorage:
     """Base storage class encapsulating directory paths and JSON I/O."""
 
     def __init__(self, base_dir: str | Path) -> None:
+        """Initialize storage with a base directory path."""
         self._dir = Path(base_dir)
 
     def _ensure_dir(self, directory: Path | None = None) -> Path:

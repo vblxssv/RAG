@@ -1,3 +1,5 @@
+"""Corpus indexing orchestrator."""
+
 from pathlib import Path
 from typing import Any, List
 
@@ -12,14 +14,21 @@ from .loading import DocumentLoader
 
 
 class Indexer:
-    def __init__(self, path: str | Path = "data/raw",
-                 max_chunk_size: int = 2000) -> None:
+    """Chunks corpus files and builds a searchable BM25 index."""
+
+    def __init__(
+        self,
+        path: str | Path = "data/raw",
+        max_chunk_size: int = 2000,
+    ) -> None:
+        """Initialize indexing components and storage."""
         self._loader = DocumentLoader(path)
         self._chunker = Chunker(max_chunk_size)
         self._tokenizer = CodeTokenizer()
         self._storage = IndexStorage()
 
     def run(self) -> Any:
+        """Build BM25 index over documents and persist to disk."""
         sources: List[MinimalSource] = []
         tokens: List[List[str]] = []
         for doc in tqdm(

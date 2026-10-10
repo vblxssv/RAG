@@ -1,7 +1,11 @@
-VENV = .venv
-
 install:
 	uv sync
+
+run:
+	uv run python -m src
+
+debug:
+	uv run python -m pdb -m src
 
 lint:
 	uv run flake8 src
@@ -13,8 +17,8 @@ lint-strict:
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
-	rm -rf $(VENV)
 	rm -rf .mypy_cache
+	rm -rf .pytest_cache
 	rm -f sim.log
 	rm -rf data/processed
 	rm -rf data/results

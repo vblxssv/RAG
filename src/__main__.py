@@ -1,8 +1,10 @@
+import fire
 from src.cli import CLI
 
 
 def main() -> None:
-    CLI.run()
+    """Run the main Fire CLI application."""
+    fire.Fire(CLI)
 
 
 if __name__ == "__main__":

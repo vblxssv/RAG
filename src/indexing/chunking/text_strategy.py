@@ -30,6 +30,7 @@ class TextChunkStrategy(ChunkStrategy):
         return limit
 
     def chunk(self, document: Document) -> List[MinimalSource]:
+        """Split plain text or markdown document into chunks."""
         if document.is_empty:
             return []
         sources: List[MinimalSource] = []

@@ -62,6 +62,7 @@ class PythonChunkStrategy(ChunkStrategy):
         return zones
 
     def _get_zones(self, document: Document) -> List[Zone]:
+        """Extract semantic AST zones from Python document."""
         tree = ast.parse(document.content)
         cursor_line = 1
         zones: List[Zone] = []
@@ -110,6 +111,7 @@ class PythonChunkStrategy(ChunkStrategy):
         ]
 
     def chunk(self, document: Document) -> List[MinimalSource]:
+        """Split Python source code into chunks based on AST structures."""
         if document.is_empty:
             return []
         if len(document) <= self.max_chunk_size:

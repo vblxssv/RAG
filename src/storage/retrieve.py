@@ -1,24 +1,36 @@
-from .base import BaseStorage
+"""Storage gateway for question datasets and search results."""
+
 from pathlib import Path
 from src.models import RagDataset, StudentSearchResults
+from .base import BaseStorage
 
 
 class RetrievingStorage(BaseStorage):
-    def __init__(self, input_path: str | Path,
-                 results_dir: str | Path) -> None:
+    """Handles persistence of datasets and search results."""
+
+    def __init__(
+        self,
+        input_path: str | Path,
+        results_dir: str | Path,
+    ) -> None:
+        """Initialize storage with dataset path and results directory."""
         super().__init__(input_path)
         self._input_path = Path(input_path)
         self._results_dir = Path(results_dir)
 
     def load_dataset(self) -> RagDataset:
+        """Load and parse question dataset JSON from disk."""
         if not self._input_path.exists():
             raise FileNotFoundError(f"File: {self._input_path} does not exist")
         raw_text = self._input_path.read_text(encoding="utf-8")
         dataset = RagDataset.model_validate_json(raw_text)
         return dataset
 
-    def save_search_results(self,
-                            search_results: StudentSearchResults) -> Path:
+    def save_search_results(
+        self,
+        search_results: StudentSearchResults,
+    ) -> Path:
+        """Persist student search results to JSON file."""
         self._ensure_dir(self._results_dir)
         result_path = self._results_dir / self._input_path.name
         json_text = search_results.model_dump_json(indent=2)
@@ -28,6 +40,7 @@ class RetrievingStorage(BaseStorage):
     def load_search_results(
         self, custom_path: str | Path | None = None
     ) -> StudentSearchResults:
+        """Load student search results from file."""
         res_path = (
             Path(custom_path)
             if custom_path

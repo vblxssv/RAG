@@ -16,6 +16,10 @@ dependencies = [
 
 [tool.mypy]
 python_version = "3.12"
+exclude = [
+    "^data/",
+    "^\\.venv/",
+]
 
 [[tool.mypy.overrides]]
 module = "fire.*"
@@ -23,6 +27,14 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "fire"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "transformers.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "transformers"
 ignore_missing_imports = true
 
 [dependency-groups]

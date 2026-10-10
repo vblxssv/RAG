@@ -1,12 +1,16 @@
+"""Recall calculation module for retrieval evaluation."""
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import List
 from src.storage import RetrievingStorage
 from src.models import MinimalSource, AnsweredQuestion
-from pathlib import Path
-from dataclasses import dataclass
-from typing import List
 
 
 @dataclass
 class EvalPair:
+    """Pair of ground truth and retrieved sources for a single question."""
+
     question_id: str
     gt_sources: List[MinimalSource]
     my_sources: List[MinimalSource]
@@ -26,10 +30,18 @@ class EvalPair:
 
 
 class Recall:
-    def __init__(self, search_result_path: str | Path,
-                 dataset_path: str | Path) -> None:
-        storage = RetrievingStorage(dataset_path,
-                                    Path(search_result_path).parent)
+    """Evaluates retrieval quality using Recall@k over ground truth."""
+
+    def __init__(
+        self,
+        search_result_path: str | Path,
+        dataset_path: str | Path,
+    ) -> None:
+        """Initialize with search results and ground truth dataset."""
+        storage = RetrievingStorage(
+            dataset_path,
+            Path(search_result_path).parent,
+        )
         self._standart = storage.load_dataset()
         self._results = storage.load_search_results(search_result_path)
 
@@ -49,7 +61,7 @@ class Recall:
                 self._pairs.append(pair)
 
     def calculate_at_k(self, k: int) -> float:
-        """Calculate average Recall@k across all pairs."""
+        """Calculate average Recall@k across all evaluated question pairs."""
         if not self._pairs:
             return 0.0
         return sum(p.recall_at_k(k) for p in self._pairs) / len(self._pairs)

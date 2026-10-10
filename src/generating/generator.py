@@ -1,6 +1,6 @@
 from pathlib import Path
 from tqdm import tqdm
-from .llm import QwenLLM
+from .qwen import Qwen
 from src.retrieving import Retriever
 from src.storage import IndexStorage, RetrievingStorage, AnswerStorage
 from src.models import (
@@ -15,31 +15,28 @@ class AnswerGenerator:
 
     def __init__(
         self,
-        llm: QwenLLM | None = None,
+        llm: Qwen | None = None,
         retriever: Retriever | None = None,
         index_storage: IndexStorage | None = None,
     ) -> None:
         """Initialize core generation dependencies."""
-        self._llm = llm or QwenLLM()
+        self._llm = llm or Qwen()
         self._retriever = retriever or Retriever()
         self._index_storage = index_storage or IndexStorage()
 
-    def _build_context(self, sources: list[MinimalSource]) -> str:
+    def _get_chunks(self, sources: list[MinimalSource]) -> list[str]:
         """Extract text snippets from corpus files for all sources."""
-        snippets = [self._index_storage.read_snippet(src) for src in sources]
-        return "\n\n---\n\n".join(snippets)
+        return [self._index_storage.read_snippet(src) for src in sources]
+
+    def _build_context(self, sources: list[MinimalSource]) -> list[str]:
+        """Extract text snippets from corpus files for all sources."""
+        return self._get_chunks(sources)
 
     def answer(self, query: str, k: int = 5) -> str:
         """Answer a single query on the fly."""
         sources = self._retriever.search(query, k)
-        context = self._build_context(sources)
-        system_prompt = (
-            "You are a helpful assistant for the vLLM codebase. "
-            "Answer the question concisely and truthfully based ONLY "
-            "on the provided context."
-        )
-        user_prompt = f"Context:\n{context}\n\nQuestion: {query}"
-        return self._llm.generate(system_prompt, user_prompt)
+        chunks = self._get_chunks(sources)
+        return self._llm.generate(question=query, chunks=chunks)
 
     def answer_dataset(
         self,
@@ -56,14 +53,11 @@ class AnswerGenerator:
         answers: list[MinimalAnswer] = []
         for item in tqdm(search_results.search_results,
                          desc="Generating answers"):
-            context = self._build_context(item.retrieved_sources)
-            system_prompt = (
-                "You are a helpful assistant for the vLLM codebase. "
-                "Answer the question concisely based ONLY on the "
-                "provided context."
+            chunks = self._get_chunks(item.retrieved_sources)
+            ans_text = self._llm.generate(
+                question=item.question,
+                chunks=chunks,
             )
-            user_prompt = f"Context:\n{context}\n\nQuestion: {item.question}"
-            ans_text = self._llm.generate(system_prompt, user_prompt)
 
             answers.append(
                 MinimalAnswer(

@@ -1,14 +1,23 @@
+"""BM25 lexical indexer and ranking implementation."""
+
 from collections import Counter, defaultdict
 import math
 from typing import Dict, List, Self, Tuple, Any
 
 
 class BM25Indexer:
-    def __init__(self, inverted_index: Dict[str, List[Tuple[int, int]]],
-                 word_value: Dict[str, float], chunk_lens: List[int],
-                 av_chunk_len: float,
-                 k1: float = 1.5, b: float = 0.75
-                 ) -> None:
+    """Okapi BM25 inverted index for scoring and ranking text documents."""
+
+    def __init__(
+        self,
+        inverted_index: Dict[str, List[Tuple[int, int]]],
+        word_value: Dict[str, float],
+        chunk_lens: List[int],
+        av_chunk_len: float,
+        k1: float = 1.5,
+        b: float = 0.75,
+    ) -> None:
+        """Initialize the BM25 indexer with precomputed index structures."""
         self._inverted_index = inverted_index
         self._word_value = word_value
         self._chunk_lens = chunk_lens
@@ -17,6 +26,7 @@ class BM25Indexer:
         self._b = b
 
     def __str__(self) -> str:
+        """Format index statistics as string for debugging."""
         lines = [
             f"BM25Indexer (k1={self._k1}, b={self._b}, "
             f"avg_chunk_len={self._av_chunk_len:.2f}):",
@@ -33,8 +43,13 @@ class BM25Indexer:
         return "\n".join(lines)
 
     @classmethod
-    def build(cls, tokens: List[List[str]],
-              k1: float = 1.5, b: float = 0.75) -> Self:
+    def build(
+        cls,
+        tokens: List[List[str]],
+        k1: float = 1.5,
+        b: float = 0.75,
+    ) -> Self:
+        """Build inverted index and compute IDFs from tokens."""
         total_docs = len(tokens)
         if not total_docs:
             return cls({}, {}, [], 0.0, k1, b)
@@ -58,7 +73,7 @@ class BM25Indexer:
         return cls(dict(inverted_index), idf, chunk_lens, av_len, k1, b)
 
     def search(self, query_tokens: List[str], top_k: int = 5) -> List[int]:
-        """take tokenized query and get top_k best chunks"""
+        """Score documents against query tokens and return top-k doc IDs."""
         if not query_tokens or top_k <= 0 or not self._av_chunk_len:
             return []
         scores: defaultdict[int, float] = defaultdict(float)
@@ -69,19 +84,21 @@ class BM25Indexer:
             documents = self._inverted_index[token]
             for doc_id, tf in documents:
                 doc_len = self._chunk_lens[doc_id]
-                len_norm = (1.0 - self._b + self._b *
-                            (doc_len / self._av_chunk_len))
+                len_norm = (
+                    1.0 - self._b + self._b * (doc_len / self._av_chunk_len)
+                )
                 tf_part = (tf * (self._k1 + 1.0)) / (tf + self._k1 * len_norm)
                 doc_score = idf * tf_part
                 scores[doc_id] += doc_score
         sorted_doc_ids = sorted(
             scores.keys(),
             key=lambda doc_id: scores[doc_id],
-            reverse=True
+            reverse=True,
         )
         return sorted_doc_ids[:top_k]
 
     def to_dict(self) -> Dict[str, Any]:
+        """Serialize index data structures to a dictionary for JSON."""
         return {
             "inverted_index": self._inverted_index,
             "word_value": self._word_value,
@@ -93,6 +110,7 @@ class BM25Indexer:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> Self:
+        """Deserialize index data structures from a dictionary."""
         inverted_index = {
             term: [(doc, tf) for doc, tf in postings]
             for term, postings in data["inverted_index"].items()

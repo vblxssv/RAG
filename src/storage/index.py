@@ -10,6 +10,7 @@ class IndexStorage(BaseStorage):
     """Storage gateway for lexical BM25 index and minimal sources."""
 
     def __init__(self, processed_dir: str | Path = "data/processed") -> None:
+        """Initialize storage with directory for processed index files."""
         super().__init__(processed_dir)
         self._sources_file = self._dir / "sources.json"
         self._index_file = self._dir / "index.json"

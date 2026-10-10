@@ -5,6 +5,8 @@ from typing import Self
 
 
 class FileType(str, Enum):
+    """Supported file type categories for chunking strategies."""
+
     PYTHON = "python"  # .py
     TEXT = "text"     # .txt .rst .md
 

@@ -9,6 +9,7 @@ class DocumentLoader:
     """Recursively loads files from a directory as Document instances."""
 
     def __init__(self, root_dir: str | Path) -> None:
+        """Initialize loader with root directory path."""
         self._root_dir = Path(root_dir)
         self._files: list[Path] | None = None
 

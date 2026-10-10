@@ -1,5 +1,4 @@
 from pathlib import Path
-import fire
 from src.indexing import Indexer
 from src.retrieving import Retriever
 from src.recall import Recall
@@ -9,14 +8,13 @@ from src.generating import AnswerGenerator
 class CLI:
     """Command-line interface for the RAG evaluation system."""
 
-    @classmethod
-    def run(cls) -> None:
-        """Entrypoint for the CLI application."""
-        fire.Fire(cls)
-
-    def index(self, max_chunk_size: int = 2000) -> None:
-        """Ingest data/raw/ and build the index under data/processed/."""
-        Indexer("data/raw", max_chunk_size).run()
+    def index(
+        self,
+        max_chunk_size: int = 2000,
+        raw_dir: str | Path = "data/raw",
+    ) -> None:
+        """Ingest corpus files and build the lexical search index."""
+        Indexer(raw_dir, max_chunk_size).run()
         print("Ingestion complete! Indices saved under data/processed/")
 
     def search(self, query: str, k: int = 5) -> None:
@@ -32,8 +30,7 @@ class CLI:
         k: int = 5,
         save_directory: str | Path = "data/output/search_results",
     ) -> None:
-        """Run search over a whole dataset and
-        write a StudentSearchResults JSON file."""
+        """Run search over a whole dataset and save search results."""
         dataset_path = Path(dataset_path)
         save_dir = Path(save_directory)
         if save_dir == Path("data/output/search_results"):
@@ -52,8 +49,7 @@ class CLI:
         student_search_results_path: str | Path,
         save_directory: str | Path = "data/output/search_results_and_answer",
     ) -> None:
-        """Generate answers for a dataset,
-        producing a StudentSearchResultsAndAnswer JSON file."""
+        """Generate answers for a dataset from pre-retrieved sources."""
         results_path = Path(student_search_results_path)
         save_dir = Path(save_directory)
         if save_dir == Path("data/output/search_results_and_answer"):
@@ -68,7 +64,7 @@ class CLI:
         student_search_results_path: str | Path,
         dataset_path: str | Path,
     ) -> None:
-        """Report your own recall@k against a ground-truth dataset."""
+        """Report recall@k metrics against a ground-truth dataset."""
         recall = Recall(student_search_results_path, dataset_path)
         print("Evaluation Results")
         print("=" * 40)
