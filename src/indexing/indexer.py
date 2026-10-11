@@ -46,7 +46,8 @@ class Indexer:
                     src.last_character_index,
                 )
                 cur_tokens = self._tokenizer.tokenize(chunk_text)
-                tokens.append(cur_tokens)
+                path_tokens = self._tokenizer.tokenize(src.file_path)
+                tokens.append(cur_tokens + path_tokens * 2)
                 sources.append(src)
         index = BM25Indexer.build(tokens)
         self._storage.save(sources, index)
