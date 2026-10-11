@@ -41,3 +41,12 @@ ignore_missing_imports = true
 dev = [
     "types-tqdm>=4.70.0.20260906",
 ]
+
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
