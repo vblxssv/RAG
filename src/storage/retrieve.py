@@ -14,9 +14,9 @@ class RetrievingStorage(BaseStorage):
         results_dir: str | Path,
     ) -> None:
         """Initialize storage with dataset path and results directory."""
-        super().__init__(input_path)
+        super().__init__(results_dir)
         self._input_path = Path(input_path)
-        self._results_dir = Path(results_dir)
+        self._results_dir = self._dir
 
     def load_dataset(self) -> RagDataset:
         """Load and parse question dataset JSON from disk."""

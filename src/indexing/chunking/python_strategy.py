@@ -45,7 +45,10 @@ class PythonChunkStrategy(ChunkStrategy):
                 if m_start > class_cursor:
                     h_start = document.line_starts[class_cursor - 1]
                     h_end = document.line_starts[m_start - 1]
-                    if h_end > h_start:
+                    if (
+                        h_end > h_start
+                        and document.slice(h_start, h_end).strip()
+                    ):
                         zones.append(Zone(h_start, h_end))
 
                 m_start_char = document.line_starts[m_start - 1]
@@ -56,7 +59,10 @@ class PythonChunkStrategy(ChunkStrategy):
         if class_cursor <= class_end_line:
             tail_start = document.line_starts[class_cursor - 1]
             tail_end = document.line_starts[class_end_line]
-            if tail_end > tail_start:
+            if (
+                tail_end > tail_start
+                and document.slice(tail_start, tail_end).strip()
+            ):
                 zones.append(Zone(tail_start, tail_end))
 
         return zones

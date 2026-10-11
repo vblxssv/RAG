@@ -21,20 +21,23 @@ class AnswerGenerator:
     ) -> None:
         """Initialize core generation dependencies."""
         self._llm = llm or Qwen()
-        self._retriever = retriever or Retriever()
+        self._retriever = retriever
         self._index_storage = index_storage or IndexStorage()
+
+    @property
+    def retriever(self) -> Retriever:
+        """Lazily initialize Retriever on first access."""
+        if self._retriever is None:
+            self._retriever = Retriever()
+        return self._retriever
 
     def _get_chunks(self, sources: list[MinimalSource]) -> list[str]:
         """Extract text snippets from corpus files for all sources."""
         return [self._index_storage.read_snippet(src) for src in sources]
 
-    def _build_context(self, sources: list[MinimalSource]) -> list[str]:
-        """Extract text snippets from corpus files for all sources."""
-        return self._get_chunks(sources)
-
     def answer(self, query: str, k: int = 5) -> str:
         """Answer a single query on the fly."""
-        sources = self._retriever.search(query, k)
+        sources = self.retriever.search(query, k)
         chunks = self._get_chunks(sources)
         return self._llm.generate(question=query, chunks=chunks)
 

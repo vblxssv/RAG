@@ -15,18 +15,25 @@ class TextChunkStrategy(ChunkStrategy):
         """Finds the best cutoff point between start and limit."""
         if limit == len(text):
             return limit
-        best_pos = -1
-        for sep in (". ", ".\n", "! ", "? ", "\n\n", "\n"):
+
+        best_sentence = -1
+        for sep in (". ", ".\n", "! ", "? ", "\n\n"):
             pos = text.rfind(sep, start, limit)
             if pos != -1:
                 cutoff = pos + (1 if sep[0] in ".!?" else len(sep))
-                if cutoff > best_pos:
-                    best_pos = cutoff
-        if best_pos > start:
-            return best_pos
+                if cutoff > best_sentence:
+                    best_sentence = cutoff
+        if best_sentence > start:
+            return best_sentence
+
+        line_pos = text.rfind("\n", start, limit)
+        if line_pos != -1 and line_pos + 1 > start:
+            return line_pos + 1
+
         space_pos = text.rfind(" ", start, limit)
         if space_pos > start:
             return space_pos
+
         return limit
 
     def chunk(self, document: Document) -> List[MinimalSource]:

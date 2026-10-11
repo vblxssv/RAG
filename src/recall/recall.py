@@ -42,12 +42,12 @@ class Recall:
             dataset_path,
             Path(search_result_path).parent,
         )
-        self._standart = storage.load_dataset()
+        self._standard = storage.load_dataset()
         self._results = storage.load_search_results(search_result_path)
 
         gt_map = {
             q.question_id: q.sources
-            for q in self._standart.rag_questions
+            for q in self._standard.rag_questions
             if isinstance(q, AnsweredQuestion)
         }
         self._pairs: List[EvalPair] = []
