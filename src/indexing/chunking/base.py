@@ -1,3 +1,5 @@
+"""Abstract base strategy for text and code chunking."""
+
 from abc import ABC, abstractmethod
 from typing import List
 

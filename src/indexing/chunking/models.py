@@ -1,3 +1,5 @@
+"""Data structures for semantic chunking zones and spans."""
+
 from dataclasses import dataclass
 
 from src.models import MinimalSource

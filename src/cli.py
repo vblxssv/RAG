@@ -1,3 +1,5 @@
+"""Command-line interface module defining all user-facing commands."""
+
 from pathlib import Path
 from src.indexing import Indexer
 from src.retrieving import Retriever

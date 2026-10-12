@@ -1,3 +1,5 @@
+"""Answer generator orchestrating retrieval and LLM inference."""
+
 from pathlib import Path
 from tqdm import tqdm
 from .qwen import Qwen

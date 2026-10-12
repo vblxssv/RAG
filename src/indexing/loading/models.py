@@ -1,7 +1,8 @@
+"""Data models for loaded corpus documents and file types."""
+
 from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
-from typing import Self
 
 
 class FileType(str, Enum):
@@ -13,6 +14,8 @@ class FileType(str, Enum):
 
 @dataclass(frozen=True)
 class Document:
+    """Represents a loaded source code or documentation file."""
+
     path: str
     content: str
     type: FileType
@@ -38,7 +41,7 @@ class Document:
         """Returns the text slice between start and end character indices."""
         return self.content[start:end]
 
-    def sub_document(self, start: int, end: int) -> Self:
+    def sub_document(self, start: int, end: int) -> "Document":
         """Creates a child Document for a sub-range of characters."""
         return self.__class__(
             path=self.path,

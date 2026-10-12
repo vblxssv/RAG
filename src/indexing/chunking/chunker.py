@@ -1,3 +1,5 @@
+"""Document chunking dispatcher for Python and text formats."""
+
 from src.indexing.chunking.base import ChunkStrategy
 from src.indexing.chunking.models import MinimalSource
 from src.indexing.chunking.python_strategy import PythonChunkStrategy
@@ -9,9 +11,7 @@ class Chunker:
     """Dispatches documents to the appropriate chunking strategy."""
 
     def __init__(self, max_chunk_size: int = 2000) -> None:
-        """
-            Initializes Chunker with strategies for each supported FileType.
-        """
+        """Initialize Chunker with strategies for each supported FileType."""
         self.max_chunk_size = max_chunk_size
         self._strategies: dict[FileType, ChunkStrategy] = {
             FileType.PYTHON: PythonChunkStrategy(max_chunk_size),
@@ -19,8 +19,6 @@ class Chunker:
         }
 
     def chunk(self, document: Document) -> list[MinimalSource]:
-        """
-            Splits a document into sources using its corresponding strategy.
-        """
+        """Split a document into sources using its corresponding strategy."""
         strategy = self._strategies[document.type]
         return strategy.chunk(document)

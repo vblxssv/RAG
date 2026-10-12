@@ -1,3 +1,5 @@
+"""Document loader for scanning and reading corpus files."""
+
 from collections.abc import Iterator
 import os
 from pathlib import Path

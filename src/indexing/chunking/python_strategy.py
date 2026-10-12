@@ -1,3 +1,5 @@
+"""AST-based chunking strategy for Python source files."""
+
 import ast
 from typing import List
 

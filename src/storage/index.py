@@ -1,3 +1,5 @@
+"""Storage gateway for persisting and loading BM25 index and sources."""
+
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -31,7 +33,8 @@ class IndexStorage(BaseStorage):
         """Loads sources and the BM25 index from disk."""
         if not self.is_indexed():
             raise FileNotFoundError(
-                f"Index not found in {self._dir}. Run 'rag index' first"
+                f"Index not found in {self._dir}. "
+                "Run 'uv run python -m src index' first"
             )
 
         sources_raw = self._read_json(self._sources_file)

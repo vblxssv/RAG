@@ -1,3 +1,5 @@
+"""Chunking strategy for plain text and markdown documents."""
+
 from typing import List
 
 from src.indexing.chunking.base import ChunkStrategy
@@ -9,6 +11,7 @@ class TextChunkStrategy(ChunkStrategy):
     """Chunking strategy for plain text and markdown documents."""
 
     def __init__(self, max_chunk_size: int = 2000) -> None:
+        """Initialize text chunking strategy with maximum chunk size."""
         super().__init__(max_chunk_size)
 
     def _find_end(self, text: str, start: int, limit: int) -> int:

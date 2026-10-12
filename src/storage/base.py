@@ -1,3 +1,5 @@
+"""Base storage class encapsulating directory paths and JSON I/O."""
+
 import json
 from pathlib import Path
 from typing import Any

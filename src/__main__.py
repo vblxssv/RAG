@@ -1,3 +1,5 @@
+"""Main entrypoint for the RAG CLI application."""
+
 import fire
 from src.cli import CLI
 

@@ -2,7 +2,7 @@
 
 from collections import Counter, defaultdict
 import math
-from typing import Dict, List, Self, Tuple, Any
+from typing import Any, Dict, List, Tuple
 
 
 class BM25Indexer:
@@ -48,7 +48,7 @@ class BM25Indexer:
         tokens: List[List[str]],
         k1: float = 1.5,
         b: float = 0.75,
-    ) -> Self:
+    ) -> "BM25Indexer":
         """Build inverted index and compute IDFs from tokens."""
         total_docs = len(tokens)
         if not total_docs:
@@ -109,7 +109,7 @@ class BM25Indexer:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Self:
+    def from_dict(cls, data: Dict[str, Any]) -> "BM25Indexer":
         """Deserialize index data structures from a dictionary."""
         inverted_index = {
             term: [(doc, tf) for doc, tf in postings]
