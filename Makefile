@@ -24,4 +24,7 @@ clean:
 	rm -rf data/results
 	rm -rf data/output
 
+fclean: clean
+	rm -rf .venv
+
 .PHONY: install run debug clean lint lint-strict
