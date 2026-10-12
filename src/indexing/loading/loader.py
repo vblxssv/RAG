@@ -25,7 +25,9 @@ class DocumentLoader:
             dirs[:] = [d for d in dirs if not d.startswith(".")]
 
             for file in files:
-                if file.endswith((".py", ".md", ".txt", ".rst")):
+                if not file.startswith(".") and file.endswith(
+                    (".py", ".md", ".txt", ".rst")
+                ):
                     matched_files.append(Path(root, file))
         self._files = matched_files
         return self._files
