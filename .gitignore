@@ -6,6 +6,7 @@ data/raw/vllm-0.10.1/
 data/processed/
 data/results
 data/output
+data/
 
 .mypy_cache/
 sim.log
@@ -13,3 +14,6 @@ sim.log
 .DS_Store
 **/.DS_Store
 .python_version
+
+docs/
+moulinette*

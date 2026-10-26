@@ -86,7 +86,7 @@ The project follows a modular, decoupled architecture adhering to SOLID design p
 #### Pipeline Stages:
 1. **Document Loading (`src/indexing/loading/`)**: Recursively reads Python source files and documentation (`.py`, `.md`, `.txt`, `.rst`), computing pre-cached line offset mappings for rapid positional lookups.
 2. **Chunking Engine (`src/indexing/chunking/`)**: Dispatches files to language-aware chunking strategies via the Strategy pattern.
-3. **Tokenizer (`src/tokenizer.py`)**: Tokenizes queries and text into lowercase sub-words, splitting compound code identifiers (`camelCase` and `snake_case`).
+3. **Tokenizer (`src/tokenizer.py`, `src/stopwords.py`)**: Tokenizes queries and text into lowercase sub-words, splitting compound code identifiers (`camelCase` and `snake_case`) and filtering high-frequency lexical stop words.
 4. **Lexical Indexer (`src/bm25.py`)**: Builds an inverted index with precomputed inverse document frequencies (IDF) based on Okapi BM25.
 5. **Storage Layer (`src/storage/`)**: Manages structured JSON persistence for sources, BM25 indices, query results, and generated answers.
 6. **Retriever (`src/retrieving/`)**: Scores query tokens against indexed documents and outputs ranked `MinimalSource` spans matching exact corpus paths.
@@ -175,8 +175,8 @@ The project follows a modular, decoupled architecture adhering to SOLID design p
 * `Chunker` (`chunking/chunker.py`): Strategy dispatcher routing incoming documents to either Python or Text chunkers.
 * `Indexer` (`indexer.py`): Orchestrator tying together loading, chunking, tokenization, BM25 index building, and persistence.
 
-#### 4. Lexical Retrieval Subsystem (`src/retrieving/`, `src/bm25.py`, `src/tokenizer.py`)
-* `CodeTokenizer` (`src/tokenizer.py`): Regex-driven tokenizer splitting compound programming symbols (`camelCase` and `snake_case`) into lowercase constituent sub-words.
+#### 4. Lexical Retrieval Subsystem (`src/retrieving/`, `src/bm25.py`, `src/tokenizer.py`, `src/stopwords.py`)
+* `CodeTokenizer` (`src/tokenizer.py`): Regex-driven tokenizer splitting compound programming symbols (`camelCase` and `snake_case`) into lowercase sub-words with dependency-injected stop word filtering (`DEFAULT_STOP_WORDS` from `src/stopwords.py`).
 * `BM25Indexer` (`src/bm25.py`): Custom inverted index maintaining posting lists `(doc_id, tf)` and inverse document frequencies (IDF). Implements Okapi BM25 scoring and JSON serialization.
 * `Retriever` (`src/retrieving/retriever.py`): High-level retrieval gateway executing single queries and dataset-wide batch searches.
 
@@ -235,13 +235,13 @@ The system was evaluated against the reference vLLM benchmark datasets (`vllm-0.
 ### Retrieval Recall@k Scores
 | Dataset | Recall@1 | Recall@3 | Recall@5 | Recall@10 | Subject Target (Recall@5) | Status |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Documentation Questions** (`dataset_docs_public.json`) | 53.0% | 75.0% | **81.0%** | 86.0% | $\ge$ 80% | **PASS** |
-| **Code Questions** (`dataset_code_public.json`) | 34.3% | 55.6% | **64.6%** | 73.7% | $\ge$ 50% | **PASS** |
+| **Documentation Questions** (`dataset_docs_public.json`) | 65.0% | 80.0% | **83.0%** | 90.0% | $\ge$ 80% | **PASS** |
+| **Code Questions** (`dataset_code_public.json`) | 58.6% | 77.8% | **84.8%** | 88.9% | $\ge$ 50% | **PASS** |
 
 ### Execution Benchmarks
-* **Corpus Indexing Time**: **~2.5 seconds** for 1,952 files (Subject limit: $\le 5$ minutes).
-* **Retrieval Throughput**: **~0.8 seconds** for 100 questions / **~1.6 seconds** for 200 questions (Subject limit: $\le 90$ seconds).
-* **Chunk Length Compliance**: Verified across all 14,115 indexed chunks: **0 chunks exceed 2,000 characters**.
+* **Corpus Indexing Time**: **~5.1 seconds** for 1,952 files (Subject limit: $\le 5$ minutes).
+* **Retrieval Throughput**: **~0.8 seconds** for 100 questions / **~1.5 seconds** for 200 questions (Subject limit: $\le 90$ seconds).
+* **Chunk Length Compliance**: Verified across all 14,115 indexed chunks: **0 chunks exceed 2,000 characters** (`Student data is valid: True`).
 * **Answer Generation Throughput**: ~4.8 seconds per question on local hardware with `Qwen/Qwen3-0.6B`.
 
 ---

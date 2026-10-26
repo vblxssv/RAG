@@ -1,14 +1,22 @@
 """Code and natural language tokenizer for lexical indexing and search."""
 
 import re
+from src.stopwords import DEFAULT_STOP_WORDS
 
 
 class CodeTokenizer:
     """Tokenizes code identifiers and natural language text."""
 
-    def __init__(self, min_token_len: int = 2) -> None:
-        """Initialize regex splitters and minimum token length threshold."""
+    def __init__(
+        self,
+        min_token_len: int = 2,
+        stop_words: frozenset[str] | None = None,
+    ) -> None:
+        """Initialize tokenizer with minimum token length and stop words."""
         self._min_token_len = min_token_len
+        self._stop_words = (
+            stop_words if stop_words is not None else DEFAULT_STOP_WORDS
+        )
         self._acronym_regex = re.compile(r"([A-Z]+)([A-Z][a-z])")
         self._camel_regex = re.compile(r"([a-z\d])([A-Z])")
         self._word_regex = re.compile(r"[a-zA-Z0-9_]+")
@@ -35,7 +43,10 @@ class CodeTokenizer:
                     has_split = True
                 for sub in sub_tokens:
                     sub_clean = sub.lower()
-                    if len(sub_clean) >= self._min_token_len:
+                    if (
+                        len(sub_clean) >= self._min_token_len
+                        and sub_clean not in self._stop_words
+                    ):
                         tokens.append(sub_clean)
                         seen_in_word.add(sub_clean)
 
@@ -43,6 +54,7 @@ class CodeTokenizer:
                 has_split
                 and len(word_lower) >= self._min_token_len
                 and word_lower not in seen_in_word
+                and word_lower not in self._stop_words
             ):
                 tokens.append(word_lower)
 
